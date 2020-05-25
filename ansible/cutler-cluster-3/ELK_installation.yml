@@ -1,0 +1,98 @@
+- hosts: esmaster_server
+  roles:
+    - role: elastic
+  vars:
+    es_heap_size: "1g"
+    es_config:
+      cluster.name: "{{ cluster_name }}"
+      network.host: 0.0.0.0
+      discovery.seed_hosts: 
+        - "{{ master_node }}":9300"
+        - "{{ esdataN1 }}:9300"
+        - "{{ esdataN2 }}:9300"
+        - "{{ escoordinatorN }}:9300"
+      cluster.initial_master_nodes: 
+        - "{{ master_node }}"
+      http.port: {{ http_port }}
+      transport.port: 9300
+      node.data: false
+      node.master: true
+      node.name: esmasterN
+      bootstrap.memory_lock: false
+      cluster.auto_shrink_voting_configuration: true
+    es_plugins:
+     - plugin: ingest-attachment
+
+# Below esdataN1 and esdataN2 can be merged into one group -> hosts: esdata_servers as they're having identical config
+- hosts: esdataN1
+  roles:
+    - role: elastic
+  vars:
+    es_config:
+      cluster.name: "{{ cluster_name }}"
+      network.host: 0.0.0.0
+      discovery.seed_hosts: 
+        - "{{ master_node }}":{{ transport_port }}"
+        - "{{ esdataN1 }}:{{ transport_port }}"
+        - "{{ esdataN2 }}:{{ transport_port }}"
+        - "{{ escoordinatorN }}:{{ transport_port }}"
+      cluster.initial_master_nodes: 
+        - "{{ master_node }}"
+      http.port: {{ http_port }}
+      transport.port: "{{ transport_port }}"
+      node.data: true
+      node.master: false
+      node.name: esdataN1
+      bootstrap.memory_lock: false
+      cluster.auto_shrink_voting_configuration: true
+    es_plugins:
+      - plugin: ingest-attachment
+      
+- hosts: esdataN2
+  roles:
+    - role: elastic
+  vars:
+    es_config:
+      cluster.name: "{{ cluster_name }}"
+      network.host: 0.0.0.0
+      discovery.seed_hosts: 
+        - "{{ master_node }}":{{ transport_port }}"
+        - "{{ esdataN1 }}:{{ transport_port }}"
+        - "{{ esdataN2 }}:{{ transport_port }}"
+        - "{{ escoordinatorN }}:{{ transport_port }}"
+      cluster.initial_master_nodes: 
+        - "{{ master_node }}"
+      http.port: {{ http_port }}
+      transport.port: "{{ transport_port }}"
+      node.data: true
+      node.master: false
+      node.name: esdataN2
+      bootstrap.memory_lock: false
+      cluster.auto_shrink_voting_configuration: true
+    es_plugins:
+      - plugin: ingest-attachment
+      
+- hosts: escoordinator_server
+  roles:
+    - role: elastic
+    - role: kibana
+  vars:
+    es_config:
+      cluster.name: "{{ cluster_name }}"
+      network.host: 0.0.0.0
+      discovery.seed_hosts: 
+        - "{{ master_node }}":{{ transport_port }}"
+        - "{{ esdataN1 }}:{{ transport_port }}"
+        - "{{ esdataN2 }}:{{ transport_port }}"
+        - "{{ escoordinatorN }}:{{ transport_port }}"
+      cluster.initial_master_nodes: 
+        - "{{ master_node }}"
+      http.port: {{ http_port }}
+      transport.port: {{ transport_port }}
+      node.data: false
+      node.master: false
+      node.name: escoordinatorN
+      bootstrap.memory_lock: false
+      cluster.auto_shrink_voting_configuration: true
+    es_plugins:
+      - plugin: ingest-attachment

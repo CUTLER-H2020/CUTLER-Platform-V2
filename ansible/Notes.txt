@@ -1,0 +1,2 @@
+Notes:
++ hashed password in zookeeper and kubernetes cluster need to be changed

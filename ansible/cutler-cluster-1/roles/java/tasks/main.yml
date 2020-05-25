@@ -1,0 +1,9 @@
+---
+- name: Remove "openjdk-*" package
+  apt:
+    name: openjdk-11-*
+    state: absent
+    
+- name: Install "openjdk-8-jdk" package
+  apt:
+    name: openjdk-8-jdk

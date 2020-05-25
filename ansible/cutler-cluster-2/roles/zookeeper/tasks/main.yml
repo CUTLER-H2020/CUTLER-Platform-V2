@@ -1,0 +1,94 @@
+---
+- name: Create zookeeper group
+  group:
+    name: zookeeper
+    state: present
+
+- name: Create zookeeper user
+  user:
+    name: zookeeper
+    group: sudo
+    password: '$6$TQfYSCLA$AEot3AcSzqnmlnDnhCiUNPqeC4RkHcu0SQlCSyAhyMiQsoeA6eH4VwmdTGQX..hp3B2o42PuG0nXv4IG4taL81'
+    shell: /bin/bash
+
+- name: Reboot Zookeeper nodes
+  reboot:
+
+- name: Create deploy directories
+  file: 
+    path: '{{ item }}'
+    state: directory
+    mode: 755
+    owner: '{{ zk_user }}'
+    group: '{{ zk_user }}'
+  become: true
+  with_items: "{{ zk_make_dirs.split(',') }}"
+  when: zk_make_dirs is defined and zk_make_dirs != ""
+
+# Not sure why previous step is not setting permission to 755  
+- name: Fix /data/zookeeper permissions
+  become: true
+  shell: chmod -R 755 {{ zk_data_dir }}
+
+- include_vars: file={{ playbook_dir }}/conf/kafka_zk_packages.yml
+
+- name: Extract zookeeper package
+  unarchive:
+    src: "{{ downloads_dir }}/{{ item.name }}-{{ item.version }}.tar.gz"
+    dest: "{{ zk_dir }}"
+    copy: yes
+    mode: 777
+    owner: "{{ zk_user }}"
+    group: "{{ zk_user }}"
+  with_items: "{{ kafka_zk_packages }}"
+  when: item.name == "apache-zookeeper"
+
+# Fix /opt/zookeeper folder permissions - note: not updating package sub-directory
+- name: Fix permissions
+  become: true
+  shell: chmod -R 777 {{ zk_dir }}
+
+- name: Link to zookeeper packages
+  become: true
+  file: 
+    src: "{{ zk_dir }}/{{ item.name }}-{{ item.version }}-bin"
+    path: "{{ zk_dir }}/zk"
+    state: link
+    mode: 755
+    owner: '{{ zk_user }}'
+    group: '{{ zk_user }}'
+  with_items: "{{ kafka_zk_packages }}"
+  when: item.name == "apache-zookeeper"
+
+- name: Overwrite myid file.
+  template:
+    src: myid.j2
+    dest: '{{ zk_data_dir }}/myid'
+
+- name: Overwrite default config file
+  template: src=zoo.cfg.j2 dest={{ zk_link_dir }}/conf/zoo.cfg
+
+- name: UFW - Allow Zookeeper (2181)
+  become: true
+  ufw:
+    rule: allow
+    port: 2181
+
+- name: UFW - Allow Zookeeper (2888)
+  become: true
+  ufw:
+    rule: allow
+    port: 2888
+
+- name: UFW - Allow Zookeeper (3888)
+  become: true
+  ufw:
+    rule: allow
+    port: 3888
+
+# NB - Could set up to run as a service using the zookeeper.service script instead 
+- name: Start Zookeeper service
+  become: true
+  become_user: '{{ zk_user }}'
+  shell: cd {{ zk_link_dir }} && bin/zkServer.sh start
+  

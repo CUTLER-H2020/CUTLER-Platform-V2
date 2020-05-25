@@ -1,0 +1,34 @@
+---  
+- name: Configure ufw rules
+  ufw: rule='allow' port='{{ item }}'
+  with_items: 
+    - "{{ dashbord_port}}"
+    - "{{ hdfs_port }}"
+    - "{{ dfs_secondary_namenode_httpport }}"
+    - "{{ yarn_resourcemanager_webapp_port }}"    
+    - "{{ yarn_resourcemanager_webapp_https_port }}"    
+    - "{{ yarn_resourcemanager_port }}"
+    - "{{ yarn_resourcemanager_default_port }}"
+    - "{{ yarn_resourcemanager_tracker_port }}"    
+    - "{{ yarn_resourcemanager_scheduler_port }}"
+    - "{{ yarn_resourcemanager_admin_port }}"
+    - "{{ yarn_nodemanager_port }}"
+    - "{{ yarn_nodemanager_webapp_port }}" 
+    - "{{ yarn_timeline_service_port }}"   
+    - "{{ yarn_timeline_service_webapp_port }}"    
+    - "{{ yarn_timeline_service_webapp_https_port }}"    
+    - "{{ yarn_log_server_url }}"  
+    - "{{ datanode_datatransfer_port }}"    
+    - "{{ hive_server_port }}"
+    - "{{ hive_hwi_port }}"
+    - "{{ hive_metastore_port }}" 
+    - "{{ dfs_datanode_http_address }}" 
+    - "{{ dfs_datanode_https_address }}" 
+    - "{{ dfs_datanode_address }}" 
+    - "{{ dfs_datanode_ipc_address }}"     
+
+  notify:
+    - restart ufw
+
+- name: Copy /etc/hosts
+  template: src=hosts dest=/etc/hosts mode=644     

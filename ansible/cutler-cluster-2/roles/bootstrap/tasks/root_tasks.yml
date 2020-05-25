@@ -1,0 +1,22 @@
+---
+
+- name: Disable swap
+  shell: "([ $(swapon -s | wc -l) -ge 1 ] && (swapoff -a && echo disable)) || echo already"
+  ignore_errors: yes
+  register: swapoff_result
+  changed_when: "swapoff_result.stdout.strip() == 'disable'"
+
+- name: Create top deploy directory
+  file: path="{{ deploy_dir }}" state=directory mode=0755 owner={{ cutler_admin }} group={{ cutler_admin }}
+  become: true
+
+- name: Set hostname if hostname is not distinguishable
+  hostname: name=ip-{{ ansible_default_ipv4.address | replace(".","-") }}
+  register: hostname_set
+  when:
+    - set_hostname
+    - "ansible_default_ipv4.address | replace('.','-') not in ansible_hostname"
+
+- name: Update /etc/hosts
+  template: src=hosts dest=/etc/hosts
+

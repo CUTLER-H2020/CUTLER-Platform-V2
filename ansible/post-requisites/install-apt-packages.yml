@@ -1,0 +1,7 @@
+---
+- hosts: hadoopNN, hadoopDN1, hadoopDN2, hadoopDN3, hadoopRM
+  sudo: yes
+  roles:
+    - InstallAptPackages
+
+     

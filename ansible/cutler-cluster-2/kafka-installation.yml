@@ -1,0 +1,9 @@
+---
+###### Kafka Deployment ########
+
+ - name: Deploy and start kafka
+   hosts: kafka_servers
+   roles:
+     - kafka
+
+###### END of Kafka Deployment ########

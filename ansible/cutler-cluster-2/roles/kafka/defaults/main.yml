@@ -1,0 +1,7 @@
+---
+
+kafka_datalog_dir: "{{ deploy_dir }}/datalog"
+kafka_log_dir: "{{ deploy_dir }}/log"
+
+kafka_heap_size: "1G"
+

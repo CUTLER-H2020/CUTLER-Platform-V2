@@ -1,0 +1,6 @@
+---    
+- hosts: esmaster_server
+  sudo: yes
+  roles:
+    - role: apache2
+   

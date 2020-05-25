@@ -1,0 +1,9 @@
+---
+- hosts: hadoopNN_server, hadoopDN_servers, hadoopRM_server
+#  sudo: yes
+  vars_files:   
+   - vars/var_basic.yml
+  roles:
+    - setAuthorizedKeys
+
+     

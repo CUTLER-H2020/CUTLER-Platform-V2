@@ -1,0 +1,32 @@
+---
+#- name: Copy /etc/hosts
+#  become: yes
+#  template: src=etchosts dest=/etc/hosts mode=644
+  
+- name: Copy Hadoop core-site.xml
+  template: src=core-site.xml dest={{ hadoop_config_path }} mode=644 owner={{ user }} group = {{ group }}
+
+- name: Copy Hadoop hdfs-site.xml
+  template: src=hdfs-site.xml dest={{ hadoop_config_path }} mode=644 owner={{ user }} group = {{ group }}
+
+- name: Copy Hadoop mapred-site.xml
+  template: src=mapred-site.xml dest={{ hadoop_config_path }} mode=644 owner={{ user }} group = {{ group }}
+
+- name: Copy Hadoop yarn-site.xml
+  template: src=yarn-site.xml dest={{ hadoop_config_path }} mode=644 owner={{ user }} group = {{ group }}
+
+- name: Copy Hadoop workers
+  template: src=workers dest={{ hadoop_config_path }} mode=644 owner={{ user }} group = {{ group }}
+
+- name: Copy Hadoop Env Script
+  become: yes
+  template: src=hadoop-env.sh dest=/etc/profile.d mode=755
+
+- name: Set Hadoop Env
+  shell: . /etc/profile.d/hadoop-env.sh
+
+- name: Copy Hadoop Env Script
+  become: yes
+  template: src=hadoop-env.sh dest={{ hadoop_config_path }} mode=644
+
+

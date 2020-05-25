@@ -1,0 +1,12 @@
+---  
+- name: Set authorized key for hadoop nodes took from file
+  authorized_key:
+    user: "{{ user }}"
+    state: present
+    key: '{{ item }}'
+  with_file:
+    - '/tmp/id_{{ master_ip }}_{{user}}.pub'
+    - '/tmp/id_{{ resource_ip }}_{{user}}.pub'
+    - '/tmp/id_{{ dn1_ip }}_{{user}}.pub'
+    - '/tmp/id_{{ dn2_ip }}_{{user}}.pub'
+    - '/tmp/id_{{ dn3_ip }}_{{user}}.pub'     

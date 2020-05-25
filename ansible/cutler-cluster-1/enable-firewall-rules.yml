@@ -1,0 +1,10 @@
+---
+- hosts: hadoopNN_server, hadoopDN_servers, hadoopRM_server
+  become: yes
+  vars_files:   
+   - vars/var_basic.yml  
+   - vars/var_hive.yml   
+  roles:
+    - setFirewallRules
+
+     

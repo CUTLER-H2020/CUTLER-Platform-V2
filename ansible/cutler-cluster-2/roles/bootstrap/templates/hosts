@@ -1,0 +1,6 @@
+127.0.0.1 localhost
+
+{% for host in groups['zookeeper_servers'] %}
+{{ hostvars[host].ansible_host }} {{ hostvars[host].cname }}
+{% endfor %}
+

@@ -1,0 +1,10 @@
+---
+- hosts: hadoopNN_server
+  vars_files:
+   - vars/var_basic.yml
+  vars:
+     open_firewall: true
+     disable_firewall: false
+  roles:
+    - spark
+    - flume

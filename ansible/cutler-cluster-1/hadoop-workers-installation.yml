@@ -1,0 +1,15 @@
+---
+- hosts: hadoopDN_servers 
+  sudo: yes
+  vars_files:
+   - vars/var_basic.yml
+  vars:
+#    add_user: true
+#    generate_key: true
+#    open_firewall: false
+#    disable_firewall: true
+#    install_hadoop: true
+    config_hadoop: true
+  roles:
+#    - userpreparation
+    - hadoop

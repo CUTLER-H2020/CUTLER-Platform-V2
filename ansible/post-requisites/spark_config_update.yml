@@ -1,0 +1,14 @@
+---
+- hosts: hadoopNN,hadoopDN1,hadoopDN2,hadoopDN3,hadoopRM
+  become: true
+  tasks:
+  - name: Adding lines to /opt/spark/conf/spark-defaults.conf
+    blockinfile:
+     dest: /opt/spark/conf/spark-defaults.conf
+     block: |
+      spark.es.nodes.client.only = false
+      spark.es.nodes.wan.only = true
+      spark.es.batch.write.retry.count = -1
+      spark.es.nodes = 172.16.34.40, 172.16.34.41, 172.16.34.42, 172.16.34.43 #IP of new ES cluster nodes
+      spark.es.port = 9200
+      spark.es.index.auto.create = true

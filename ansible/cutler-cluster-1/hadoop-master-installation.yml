@@ -1,0 +1,16 @@
+---
+- hosts: hadoopNN_server,hadoopRM_server
+  remote_user: root
+  vars_files:   
+   - vars/var_basic.yml
+  vars:
+#     add_user: true
+#     generate_key: true
+#     open_firewall: true
+#     disable_firewall: false
+#     install_hadoop: true
+     config_hadoop: true
+  roles:
+#    - userpreparation
+    - hadoop
+

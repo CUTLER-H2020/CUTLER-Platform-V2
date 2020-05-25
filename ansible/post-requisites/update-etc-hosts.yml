@@ -1,0 +1,7 @@
+---
+- hosts: all_hosts
+  sudo: yes
+  roles:
+    - updateEtcHosts
+
+     

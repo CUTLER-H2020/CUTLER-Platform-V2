@@ -1,0 +1,5 @@
+- hosts: hadoopNN,hadoopDN1,hadoopDN2,hadoopDN3,hadoopRM
+  become: true
+  tasks:
+  - name: Allowing other users to write to /home/cutleradmin/hadoop_logs/
+    file: dest=/home/cutleradmin/hadoop_logs/ mode=0757 recurse=yes

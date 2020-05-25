@@ -1,0 +1,37 @@
+---
+- include: setup-Debian.yml
+  when: ansible_os_family == 'Debian'
+
+- name: Kibana Deployment
+  become: true
+  become_method: sudo  
+  package:
+    name: "{{ kibana_package }}"
+    state: "{{ kibana_package_state }}"
+    
+- name: Enalbe Kibana in update-rc.d
+  sudo: yes
+  command: update-rc.d kibana defaults 95 10
+
+- name: UFW - Allow Kibana (5601)
+  become: true
+  ufw:
+    rule: allow
+    port: "{{ kibana_server_port }}"
+
+- name: Ensure Kibana is started and enabled at boot.
+  become: yes
+  service:
+    name: kibana
+    state: "{{ kibana_service_state }}"
+    enabled: "{{ kibana_service_enabled }}"
+
+- name: Copy Kibana configuration.
+  sudo : yes
+  template:
+    src: "{{ kibana_config_template }}"
+    dest: "{{ kibana_config_file_path }}"
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart kibana

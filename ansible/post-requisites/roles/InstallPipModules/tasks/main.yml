@@ -1,0 +1,9 @@
+- name: Install a list of modules
+  pip:
+    name: "{{ modules }}"
+#    executable: pip3
+  vars:
+    modules:
+#    - pathlib
+    - pandas-schema
+    - kafka-python

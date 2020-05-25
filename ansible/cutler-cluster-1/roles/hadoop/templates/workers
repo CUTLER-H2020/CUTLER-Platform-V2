@@ -1,0 +1,3 @@
+{% for host in groups['hadoopDN_servers'] %}
+{{hostvars[host]['ansible_host']}}
+{% endfor %}

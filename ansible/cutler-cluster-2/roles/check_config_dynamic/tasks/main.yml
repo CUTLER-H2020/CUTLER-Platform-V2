@@ -1,0 +1,59 @@
+---
+
+- name: Disk space check - fail when disk is full
+  raw: df -h . | tail -n1
+  register: disk_space_st
+  failed_when: " '100%' in disk_space_st.stdout "
+  changed_when: false
+
+- name: get facts
+  setup:
+
+- name: Preflight check - Fail if this machine lacks sufficient RAM.
+  fail:
+    msg: This machine does not have sufficient RAM to run kafka.
+  when: ansible_memtotal_mb < required_ram|int
+
+- name: Set deploy_dir if not defined 
+  set_fact: deploy_dir="/home/{{ cutler-admin }}/ansible-deploy"
+  when: deploy_dir is not defined
+
+- name: Preflight check - Get Hard Max FD limit
+  shell: ulimit -H -n
+  register: ulimit
+  changed_when: False
+
+- name: Preflight check - Verify minimum open fds
+  fail:
+    msg: 'The default max number of file descriptors is too low {{ ulimit.stdout }} should be {{ min_open_fds }}'
+  when: ulimit.stdout|int < min_open_fds|int
+
+- name: Determine which mountpoint deploy dir exists on
+  shell: "df {{ deploy_dir }} | tail -n1 | awk '{print $NF}'"
+  register: deploy_partition
+  changed_when: False
+
+- name: Preflight check - Does deploy dir meet minimum disk space requirement
+  fail:
+    msg: 'The file system mounted at {{ item.mount }} does not meet minimum disk space requirement: {{ item.size_available }} < {{ minimum_deploy_space }}'
+  when: "item.mount == deploy_partition.stdout and item.size_available < minimum_deploy_space|int"
+  with_items: "{{ ansible_mounts }}"
+
+- name: environment check (deploy dir)
+  stat: path={{ deploy_dir }} get_md5=false get_checksum=false
+  register: deploy_dir_st
+
+- name: config skip variables (default)
+  set_fact:
+    skip_create_deploy_dir: false
+
+- name: config skip variables
+  set_fact:
+    skip_create_deploy_dir: true
+  when:
+    - deploy_dir_st is defined
+    - deploy_dir_st.stat is defined
+    - deploy_dir_st.stat.writeable is defined
+    - deploy_dir_st.stat.writeable
+    - deploy_dir_st.stat.readable
+    - deploy_dir_st.stat.isdir

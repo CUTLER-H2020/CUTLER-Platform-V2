@@ -1,0 +1,35 @@
+---
+- get_url: 
+    url={{ spark_mirrors|random }}/spark-{{spark_version}}/spark-{{spark_version}}-bin-without-hadoop.tgz
+    dest=/opt/spark-{{spark_version}}-bin-without-hadoop.tgz force=no
+  sudo: yes
+  register: result
+  until: result is success
+  retries: 5
+  delay: 2
+
+# Run this when service is unavailable with wget and get_url above
+#- name: Download the spart package
+#  sudo: yes
+#  shell: curl {{ spark_mirrors|random }}/spark-{{spark_version}}/spark-{{spark_version}}-bin-without-hadoop.tgz -o /opt/spark-{{spark_version}}-bin-without-hadoop.tgz
+  
+- name: Decompress it
+  sudo: yes
+  unarchive: 
+    src=/opt/spark-{{spark_version}}-bin-without-hadoop.tgz dest=/opt/ copy=no creates=/opt/spark-{{spark_version}}-bin-without-hadoop copy=no
+
+- name: Create symbolic link to spark
+  sudo: yes
+  file: 
+    src=/opt/spark-{{spark_version}}-bin-without-hadoop dest=/opt/spark state=link
+
+- name: update PATH environment variable
+  sudo: yes
+  template: src=spark.sh dest=/etc/profile.d/spark.sh mode=755
+
+- name: Set SPARK Env
+  shell: . /etc/profile.d/spark.sh 
+
+- name: Templating Spark config
+  sudo: yes
+  template: src=spark-defaults.conf dest=/opt/spark/conf/spark-defaults.conf mode=644 

@@ -1,0 +1,11 @@
+
+- name: Elastic Cluster Deployment
+  import_playbook: ELK_installation.yml
+
+- name:  Apache2 Deployment
+  import_playbook: apache2-installation.yml
+
+- name: Matlab Deployment 
+  import_playbook: matlab-installation.yml
+
+

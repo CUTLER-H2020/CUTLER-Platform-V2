@@ -1,0 +1,17 @@
+- hosts: esmaster_server, esdata_server, escoordinator_server
+  become: true
+  tasks:
+  - name: Adding cutleradmin to group elasticsearch
+    user:
+     name: 'cutleradmin'
+     groups: elasticsearch
+     append: yes
+  - name: Allowing users in elasticsearch group to write to /etc/elasticsearch
+    file: path=/etc/elasticsearch mode=0775 state=directory
+  - name: Creating stopwords directory in /etc/elasticsearch/
+    file: path=/etc/elasticsearch/stopwords mode=0775 state=directory
+  - name: Copying file to the dirc
+    copy: 
+     src: /home/orchestrator/platform-v2/ansible/cutler-cluster-3/stopwords/stop-twitter.txt
+     dest: /etc/elasticsearch/stopwords/stop-twitter.txt
+     mode: 0666

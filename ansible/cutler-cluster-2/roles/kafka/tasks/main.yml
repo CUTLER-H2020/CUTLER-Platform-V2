@@ -1,0 +1,54 @@
+---
+# Kafka deploy tasks 
+
+- name: Create deploy directories
+  file: path={{ item }} state=directory mode=0755
+  with_items:
+  - "{{ kafka_log_dir }}"
+  - "{{ kafka_datalog_dir }}"
+
+- name: Create Kafka data directory
+  file:
+    path: '{{ item }}'
+    state: directory
+    mode: 0755
+    owner: '{{ cutler_admin }}'
+    group: sudo
+  become: true
+  with_items: "{{ kafka_make_dirs.split(',') }}"
+  when: kafka_make_dirs is defined and kafka_make_dirs != ""
+
+- include_vars: file={{ playbook_dir }}/conf/kafka_zk_packages.yml
+
+- name: Extract kafka package
+  unarchive:
+    src: "{{ downloads_dir }}/{{ item.name }}-{{ item.version }}.tar.gz"
+    dest: "{{ deploy_dir }}"
+    copy: yes
+  with_items: "{{ kafka_zk_packages }}"
+  when: item.name == "kafka"
+
+# Create a 'linked folder' to the deployment in kafka_dir
+- name: Symlink install directory
+  file: src={{ deploy_dir }}/{{ item.name }}_{{ item.version }} path={{ kafka_link_dir }} state=link
+  with_items: "{{ kafka_zk_packages }}"
+  when: item.name == "kafka"
+
+- name: Create server.properties file
+  template: src=server.properties.j2 dest={{ kafka_link_dir }}/config/server.properties mode=0644 backup=yes
+
+- name: Create producer.properties file
+  template: src=producer.properties dest={{ kafka_link_dir }}/config/producer.properties mode=0644 backup=yes
+
+- name: Create consumer.properties file
+  template: src=consumer.properties dest={{ kafka_link_dir }}/config/consumer.properties mode=0644 backup=yes
+    
+  
+- name: UFW - Allow Kafka (9092)
+  become: true
+  ufw:
+    rule: allow
+    port: 9092
+    
+- name: Start Kafka service
+  shell: cd {{ kafka_link_dir }} && bin/kafka-server-start.sh -daemon config/server.properties

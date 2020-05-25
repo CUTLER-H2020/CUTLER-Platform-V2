@@ -1,0 +1,7 @@
+---
+- name: Zookeeper Deployment
+  import_playbook: zookeeper-installation.yml
+
+- name:  Kafka Deployment
+  import_playbook: kafka-installation.yml
+

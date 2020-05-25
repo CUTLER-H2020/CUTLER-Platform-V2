@@ -1,0 +1,8 @@
+- name: Install a list of packages
+  apt:
+    name: "{{ packages }}"
+  vars:
+    packages:
+    - python-geopandas
+    - python-pyshp
+    - python-kafka

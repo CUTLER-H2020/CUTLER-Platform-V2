@@ -1,0 +1,25 @@
+---
+###### Zookeeper Deployment ########
+ - name: Initializing deployment environment
+   hosts: localhost
+   connection: local
+   gather_facts: false
+   roles:
+     - download
+     - check_config_static
+
+ - name: Initializing deployment target
+   hosts: all
+   become: true
+   any_errors_fatal: true
+   roles:
+     - bootstrap
+     - check_config_dynamic
+
+ - name: Deploy and start Zookeeper
+   hosts: zookeeper_servers
+   sudo: yes
+   roles:
+     - zookeeper
+
+###### END of Zookeeper Deployment ########

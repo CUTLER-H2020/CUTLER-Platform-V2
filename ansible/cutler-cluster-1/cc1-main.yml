@@ -1,0 +1,16 @@
+---
+- name: Hadoop Master Deployment
+  import_playbook: hadoop-master-installation.yml
+
+- name:  Hadoop Workders Deployment
+  import_playbook: hadoop-workers-installation.yml
+
+#- name: Add All Public Keys to All Hadoop Nodes 
+#  import_playbook: addpublickeys-to-all.yml
+
+- name: Enable FW rules on All Hadoop Nodes 
+  import_playbook: enable-firewall-rules.yml
+  
+#- name: Hadoop Spark and Flume Deployment 
+#  import_playbook: hadoop-spark-flume-installation.yml
+  

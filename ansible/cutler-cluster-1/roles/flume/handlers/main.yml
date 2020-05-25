@@ -1,0 +1,28 @@
+---
+- name: Create Plugin.d Directory
+  sudo: yes
+  file:
+    path: '{{installation_path}}/flume/plugin.d/hdfs/native'
+    state: directory
+    mode: 0755
+  listen: Native_hdfs_Libs
+
+- name: Move Plugin.d Directory
+  sudo: yes
+  command: rsync -avl "/tmp/hadoop-{{hadoop_version}}/lib/native {{installation_path}}/flume/plugin.d/hdfs"
+  listen: Native_hdfs_Libs
+  tags: skip_ansible_lint
+
+- name: Clean Hadoop tmp
+  file:
+    state: absent
+    path: "/tmp/hadoop-{{hadoop_version}}"
+  listen: Native_hdfs_Libs
+
+- name: Restart Apache Flume
+  systemd:
+    name: apache-flume
+    state: restarted
+    daemon_reload: yes
+    enabled: yes
+  listen: Native_hdfs_Libs

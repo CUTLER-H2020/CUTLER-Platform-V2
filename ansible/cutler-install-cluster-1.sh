@@ -1,0 +1,1 @@
+ansible-playbook -i cutler-cluster-1/inventory.ini cutler-cluster-1/cc1-main.yml --ask-become-pass -k -e 'ansible_ssh_user=cutleradmin'
